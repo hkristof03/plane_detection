@@ -4,6 +4,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "data_reader.h"
+#include "projection.h"
+#include "control.h"
 
 
 int main(int argc, const char** argv)
@@ -15,53 +17,70 @@ int main(int argc, const char** argv)
     std::vector<cv::Point3d> points3d = read_data(file_paths.at(0));
 
 
-    std::cout << points3d.size() << std::endl;
-    std::cout << points3d[0] << std::endl;
-
-
-    const double v = 1.0, u = 0.5, rad = 100.0;
-
-    int m_x = 0;
-    int m_y = 0;
-
+    const cv::Scalar point_color{ 255, 255, 255 };
     cv::Mat img = cv::Mat::zeros(1200, 2000, CV_64F);
 
+    cv::Mat camera_matrix = initialize_camera_matrix(focal_length, 
+        k_size, u, v);
 
+
+    auto points2d = project_points(points3d, u, v, rad, camera_matrix);
+	draw_points(points2d, img, point_color);
     
+	char key;
+	int cnt = 0;
 
-    cv::Mat rvec, tvec, cmat;
-    
-    rvec.create(1, 3, CV_64F);
-    rvec.at<double>(0) = 0.0;
-    rvec.at<double>(1) = 0.0;
-    rvec.at<double>(2) = 0.0;
+	while (true)
+	{
+		bool changed = false;
 
-    tvec.create(3, 1, CV_64F);
-    tvec.at<double>(0) = 0.0;
-    tvec.at<double>(1) = 0.0;
-    tvec.at<double>(2) = 0.0;
+		key = cvWaitKey(30);
 
-    cmat.create(3, 3, CV_64F);
-    cv::setIdentity(cmat);
-    cmat.at<double>(0, 0) = 50.0;
-    cmat.at<double>(1, 1) = 50.0;
-    cmat.at<double>(0, 2) = 1000.0;
-    cmat.at<double>(1, 2) = 600.0;
+		if (key == 27) break;
 
-    std::vector<cv::Point2d> points2d;
-    points2d.reserve(points3d.size());
+		switch (key)
+		{
+		case 'q':
+			u += 5.0;
+			changed ^= 1;
+			cnt++;
+			break;
+		case 'a':
+			u -= 5.0;
+			changed ^= 1;
+			cnt++;
+			break;
+		case 'w':
+			v += 5.0;
+			changed ^= 1;
+			cnt++;
+			break;
+		case 's':
+			v -= 5.0;
+			changed ^= 1;
+			cnt++;
+			break;
+		case 'e':
+			rad *= 1.1;
+			changed ^= 1;
+			cnt++;
+			break;
+		case 'd':
+			rad /= 1.1;
+			changed ^= 1;
+			cnt++;
+			break;
+		}
+		if (changed && cnt % 3 == 0)
+		{
+			std::cout << "cnt: " << cnt << std::endl;
+			std::cout << "u: " << u << std::endl;
+			std::cout << "v: " << v << std::endl;
+			std::cout << "rad: " << rad << std::endl;
 
-    cv::projectPoints(points3d, rvec, tvec, cmat, cv::noArray(), points2d);
-
-    std::cout << points2d[0] << std::endl;
-
-    //cv::Mat img = cv::Mat::zeros(2000, 2000, CV_64F);
-
-    for (const auto& p : points2d)
-        cv::circle(img, p, 3, cv::Scalar(255, 255, 255), -1);
-
-    cv::imshow("Image", img);
-    cv::waitKey(0);
-    
+			auto points2d = project_points(points3d, u, v, rad, camera_matrix);
+			draw_points(points2d, img, point_color);
+		}
+	}
     return 0;
 }

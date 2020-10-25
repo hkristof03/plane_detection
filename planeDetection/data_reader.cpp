@@ -12,11 +12,14 @@ std::vector<std::string> list_directory(std::string& path)
     return file_paths;
 }
 
-std::vector<cv::Point3d> read_data(std::string& str)
+std::vector<cv::Point3d> read_data(std::string& path)
 {
     std::vector<cv::Point3d> points3d;
     std::string line;
-    std::ifstream PointFile(str);
+    std::ifstream PointFile(path);
+
+    std::cout << "Reading 3D point coordinates from path: " << std::endl 
+        << path << std::endl;
 
     while (std::getline(PointFile, line))
     {
@@ -34,6 +37,8 @@ std::vector<cv::Point3d> read_data(std::string& str)
         points3d.push_back(p);
     }
     PointFile.close();
+
+    std::cout << "Finished reading from file." << std::endl;
 
     return points3d;
 }
