@@ -1,7 +1,7 @@
 #include "projection.h"
 
 
-cv::Mat initialize_camera_matrix(
+cv::Mat InitializeCameraMatrix(
 	double& focal_length,
 	double& k_size,
 	double& u,
@@ -21,7 +21,7 @@ cv::Mat initialize_camera_matrix(
 	return camera_matrix;
 }
 
-std::vector<cv::Point2d> project_points(
+std::vector<cv::Point2d> ProjectPoints(
 	std::vector<cv::Point3d> points3d,
 	const double& u,
 	const double& v,
@@ -74,7 +74,7 @@ std::vector<cv::Point2d> project_points(
 	
 	cv::Mat matrix_points3d = cv::Mat(points3d).reshape(1);
 
-	for (size_t i = 0; i < matrix_points3d.rows; i++)
+	for (int i = 0; i < matrix_points3d.rows; i++)
 	{
 		cv::Mat point3d = matrix_points3d.row(i).t();
 		cv::Mat tr_vec = 
@@ -88,17 +88,24 @@ std::vector<cv::Point2d> project_points(
 	return points2d;
 }
 
-void draw_points(
+void DrawPoints(
 	std::vector<cv::Point2d> &points2d, 
+	std::string& window_name,
 	cv::Mat& img, 
 	const cv::Scalar &point_color
 )
 {
-	cv::Mat tmp_img = img.clone();
-
 	for (const auto& p : points2d)
-		cv::circle(tmp_img, p, 1, point_color, -1);
+		cv::circle(img, p, 0.5, point_color, -1);
+	
+}
 
-	cv::imshow("3D Point Cloud", tmp_img);
-	cv::waitKey(0);
+void DrawPoint(
+	cv::Mat& img,
+	const cv::Point2d& p,
+	const double& radius,
+	const cv::Scalar& color
+)
+{
+	cv::circle(img, p, radius, color, -1);
 }

@@ -1,7 +1,7 @@
 #include "data_reader.h"
 
 
-std::vector<std::string> list_directory(std::string& path)
+std::vector<std::string> ListDirectory(std::string& path)
 {
     std::vector<std::string> file_paths;
     file_paths.reserve(3);
@@ -12,7 +12,7 @@ std::vector<std::string> list_directory(std::string& path)
     return file_paths;
 }
 
-std::vector<cv::Point3d> read_data(std::string& path)
+std::vector<cv::Point3d> ReadData(std::string& path)
 {
     std::vector<cv::Point3d> points3d;
     std::string line;
