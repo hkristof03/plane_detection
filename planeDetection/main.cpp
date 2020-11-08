@@ -17,6 +17,7 @@ double v;
 double rad;
 
 std::string window_name = "3D Point Cloud";
+int latency = 1500;
 cv::Scalar point_color{ 255, 255, 255 };
 cv::Scalar points_plane_color{ 0, 0, 255 };
 cv::Scalar inlier_color{ 0, 255, 0 };
@@ -90,7 +91,7 @@ int main(int argc, const char** argv)
 	for (int i = 0; i < file_paths.size(); ++i)
 	{
 		u = pparams[i][0];
-		v = pparams[i][1]; 
+		v = pparams[i][1];
 		rad = pparams[i][2];
 		cv::Mat camera_matrix = InitializeCameraMatrix(focal_length,
 			k_size, u, v);
@@ -98,7 +99,7 @@ int main(int argc, const char** argv)
 		std::vector<cv::Point3d> points3d = ReadData(file_paths.at(i));
 		std::vector<cv::Point2d> points2d = ProjectPoints(points3d,
 			u, v, rad, camera_matrix);
-		
+
 		cv::Mat tmp_img = img.clone();
 
 		DrawPoints(points2d, window_name, tmp_img, point_color);
@@ -108,8 +109,14 @@ int main(int argc, const char** argv)
 		std::vector<size_t> inliers;
 		std::vector<double> best_plane;
 
+		// 1 LSQ
+		// 2 Iterative LSQ
+		// 3 Inner RANSAC
+		// else without local optimization
+		const int method = 2;
+
 		FitPlaneLoRANSAC(points3d, points2d, inliers, best_plane, threshold,
-			confidence, n_iterations, &tmp_img);
+			confidence, n_iterations, &tmp_img, method);
 	}
 	
 	/*

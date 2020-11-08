@@ -14,6 +14,36 @@ size_t GetIterationNumber(
 	const size_t& sample_size
 );
 
+void SelectMinimalSample
+(
+	int& n_points,
+	std::vector<int>& sample,
+	int k_sample_size
+);
+
+
+void CalculateInliers
+(
+	const std::vector<cv::Point3d>& points,
+	std::vector<size_t>& current_inliers,
+	const double& threshold,
+	double& a,
+	double& b,
+	double& c,
+	double& d
+);
+
+void FitPlaneInnerRANSAC
+(
+	const std::vector<cv::Point3d>& points,
+	std::vector<cv::Point2d>& projected_points,
+	std::vector<size_t>& best_inliers,
+	std::vector<double>& best_plane,
+	const double& threshold,
+	const size_t& n_iterations,
+	cv::Mat* img
+);
+
 void FitPlaneLoRANSAC
 (
 	const std::vector<cv::Point3d>& points,
@@ -23,6 +53,6 @@ void FitPlaneLoRANSAC
 	const double& threshold,
 	const double& confidence,
 	const size_t& max_iteration_desired,
-	cv::Mat* img
+	cv::Mat* img,
+	const int& method
 );
-
